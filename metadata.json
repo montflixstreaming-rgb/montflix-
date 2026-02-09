@@ -1,6 +1,6 @@
 {
-  "name": "MONTFLIX Pro",
-  "description": "Streaming simplificado de alta qualidade",
+  "name": "MONTFLIX",
+  "description": "Streaming simplificado e gratuito de alta qualidade",
   "requestFramePermissions": [
     "camera"
   ]

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -9,7 +8,6 @@ import AuthScreen from './components/AuthScreen';
 import NotificationToast from './components/NotificationToast';
 import VideoPlayer from './components/VideoPlayer';
 import MovieCard from './components/MovieCard';
-import PlanSelection from './components/PlanSelection';
 import { Movie } from './services/types';
 import { Language } from './translations';
 import { MOCK_MOVIES } from './constants';
@@ -17,7 +15,6 @@ import { MOCK_MOVIES } from './constants';
 interface User {
   email: string;
   avatar: string | null;
-  isSubscribed?: boolean;
 }
 
 const App: React.FC = () => {
@@ -59,18 +56,9 @@ const App: React.FC = () => {
   };
 
   const handleLogin = (userData: { email: string; avatar: string | null }) => {
-    const newUser = { ...userData, isSubscribed: false };
-    setUser(newUser);
-    localStorage.setItem('montflix_user', JSON.stringify(newUser));
-  };
-
-  const handlePlanSelect = (plan: string) => {
-    if (user) {
-      const updatedUser = { ...user, isSubscribed: true };
-      setUser(updatedUser);
-      localStorage.setItem('montflix_user', JSON.stringify(updatedUser));
-      setToastMessage(`Bem-vindo ao plano ${plan.toUpperCase()}!`);
-    }
+    setUser(userData);
+    localStorage.setItem('montflix_user', JSON.stringify(userData));
+    setToastMessage(`Bem-vindo, ${userData.email.split('@')[0]}!`);
   };
 
   const filteredMovies = useMemo(() => {
@@ -82,7 +70,6 @@ const App: React.FC = () => {
   }, [searchQuery]);
 
   if (!user) return <AuthScreen onLogin={handleLogin} onStartPairing={() => {}} />;
-  if (!user.isSubscribed) return <PlanSelection onSelectPlan={handlePlanSelect} userEmail={user.email} onLogout={() => setUser(null)} />;
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-[#00D1FF] selection:text-black">
@@ -101,8 +88,8 @@ const App: React.FC = () => {
             <Hero movies={MOCK_MOVIES.slice(0, 5)} onWatchNow={setActiveMovie} currentLang={language} />
             <div className="relative z-20 -mt-24 space-y-16">
               {myList.length > 0 && <MovieRow title="Minha Lista" movies={myList} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} isFavoriteList />}
-              <MovieRow title="Populares na MONTFLIX" movies={MOCK_MOVIES} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
-              <MovieRow title="Originais Pro" movies={[...MOCK_MOVIES].reverse()} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
+              <MovieRow title="Explorar Catálogo Grátis" movies={MOCK_MOVIES} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
+              <MovieRow title="Originais MONTFLIX" movies={[...MOCK_MOVIES].reverse()} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
             </div>
           </div>
         ) : (
@@ -120,10 +107,26 @@ const App: React.FC = () => {
       </main>
 
       <footer className="py-20 border-t border-white/5 text-center opacity-40 text-[10px] uppercase font-bold tracking-[0.3em]">
-        © 2026 MONTFLIX PRODUCTION • CINEMA DE ALTA FIDELIDADE
+        © 2026 MONTFLIX PRODUCTION • CINEMA GRATUITO PARA TODOS
       </footer>
 
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} user={user} onUpdateAvatar={(img) => setUser({...user, avatar: img})} onLogout={() => { localStorage.removeItem('montflix_user'); setUser(null); }} onOpenSupport={() => setIsAIOpen(true)} onShowToast={setToastMessage} currentLang={language} setLanguage={setLanguage} devices={[]} onAddDevice={() => {}} onRemoveDevice={() => {}} activePairingCode={null} onGeneratePairingCode={() => ""}/>
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        user={user} 
+        onUpdateAvatar={(img) => setUser({...user, avatar: img})} 
+        onLogout={() => { localStorage.removeItem('montflix_user'); setUser(null); }} 
+        onOpenSupport={() => setIsAIOpen(true)} 
+        onShowToast={setToastMessage} 
+        currentLang={language} 
+        setLanguage={setLanguage} 
+        devices={[]} 
+        onAddDevice={() => {}} 
+        onRemoveDevice={() => {}} 
+        activePairingCode={null} 
+        onGeneratePairingCode={() => ""}
+      />
+      
       <AISearch isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} catalog={MOCK_MOVIES} language={language} userEmail={user.email} />
       {activeMovie && <VideoPlayer movie={activeMovie} onClose={() => setActiveMovie(null)} />}
       {toastMessage && <NotificationToast message={toastMessage} onClose={() => setToastMessage(null)} />}
