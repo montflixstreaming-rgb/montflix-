@@ -1,6 +1,6 @@
 {
   "name": "MONTFLIX",
-  "description": "Streaming simplificado e gratuito de alta qualidade",
+  "description": "Cinema em casa, gratuito e de alta qualidade",
   "requestFramePermissions": [
     "camera"
   ]

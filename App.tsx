@@ -47,10 +47,10 @@ const App: React.FC = () => {
     setMyList(prev => {
       const exists = prev.find(m => m.id === movie.id);
       if (exists) {
-        setToastMessage(`${movie.title} removido dos favoritos`);
+        setToastMessage(`${movie.title} removido da lista`);
         return prev.filter(m => m.id !== movie.id);
       }
-      setToastMessage(`${movie.title} adicionado à sua lista`);
+      setToastMessage(`${movie.title} salvo na sua lista`);
       return [movie, ...prev];
     });
   };
@@ -58,7 +58,7 @@ const App: React.FC = () => {
   const handleLogin = (userData: { email: string; avatar: string | null }) => {
     setUser(userData);
     localStorage.setItem('montflix_user', JSON.stringify(userData));
-    setToastMessage(`Bem-vindo, ${userData.email.split('@')[0]}!`);
+    setToastMessage(`Bem-vindo à MONTFLIX!`);
   };
 
   const filteredMovies = useMemo(() => {
@@ -88,8 +88,8 @@ const App: React.FC = () => {
             <Hero movies={MOCK_MOVIES.slice(0, 5)} onWatchNow={setActiveMovie} currentLang={language} />
             <div className="relative z-20 -mt-24 space-y-16">
               {myList.length > 0 && <MovieRow title="Minha Lista" movies={myList} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} isFavoriteList />}
-              <MovieRow title="Explorar Catálogo Grátis" movies={MOCK_MOVIES} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
-              <MovieRow title="Originais MONTFLIX" movies={[...MOCK_MOVIES].reverse()} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
+              <MovieRow title="Destaques Gratuitos" movies={MOCK_MOVIES} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
+              <MovieRow title="Exclusivos MONTFLIX" movies={[...MOCK_MOVIES].reverse()} onSelect={setActiveMovie} onToggleFavorite={toggleFavorite} favorites={myList} />
             </div>
           </div>
         ) : (
