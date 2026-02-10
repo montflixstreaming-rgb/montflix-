@@ -8,6 +8,7 @@ interface NavbarProps {
   currentLang: Language;
   currentView: string;
   onViewChange: (view: string) => void;
+  currentUserEmail: string;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ 
@@ -19,7 +20,9 @@ const Navbar: React.FC<NavbarProps> = ({
     <button 
       onClick={() => onViewChange(view)}
       className={`transition-all duration-300 hover:text-white text-xs sm:text-sm 2xl:text-2xl font-black uppercase tracking-widest ${
-        currentView === view ? 'text-[#00D1FF] border-b-2 border-[#00D1FF] pb-1' : 'text-gray-500'
+        currentView === view 
+          ? 'text-[#00D1FF] border-b-2 border-[#00D1FF] pb-1' 
+          : 'text-gray-500'
       }`}
     >
       {label}
@@ -39,7 +42,6 @@ const Navbar: React.FC<NavbarProps> = ({
         <div className="hidden lg:flex gap-6 md:gap-10 2xl:gap-20">
           <NavLink view="home" label={t.home} />
           <NavLink view="movies" label={t.movies} />
-          <NavLink view="database" label="Banco de Dados" />
         </div>
       </div>
 

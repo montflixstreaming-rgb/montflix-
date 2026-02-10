@@ -15,8 +15,12 @@ interface DatabaseViewProps {
   currentUserEmail: string;
 }
 
+const ADMIN_EMAILS = ["f28901442@gmail.com", "joao@gmail.com"];
+const MASTER_EMAIL = "f28901442@gmail.com";
+
 const DatabaseView: React.FC<DatabaseViewProps> = ({ users, onExport, currentUserEmail }) => {
   const [filter, setFilter] = useState('');
+  const isMaster = currentUserEmail === MASTER_EMAIL;
 
   const filteredUsers = users.filter(u => 
     u.email.toLowerCase().includes(filter.toLowerCase()) || 
@@ -45,12 +49,18 @@ const DatabaseView: React.FC<DatabaseViewProps> = ({ users, onExport, currentUse
               className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold w-full sm:w-80 focus:outline-none focus:border-[#00D1FF] transition-all"
             />
           </div>
-          <button 
-            onClick={onExport}
-            className="bg-[#00D1FF] text-black font-black px-8 py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,209,255,0.3)]"
-          >
-            Baixar Backup .JSON
-          </button>
+          {/* Apenas o DONO MASTER vê este botão conectado ao Core Database */}
+          {isMaster && (
+            <button 
+              onClick={onExport}
+              className="bg-[#00D1FF] text-black font-black px-8 py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,209,255,0.3)] flex items-center gap-3"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              EXPORTAR CORE DATABASE
+            </button>
+          )}
         </div>
       </div>
 
@@ -61,7 +71,7 @@ const DatabaseView: React.FC<DatabaseViewProps> = ({ users, onExport, currentUse
         </div>
         <div className="bg-white/[0.03] border border-white/5 p-8 rounded-[2rem] flex flex-col justify-center">
           <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2">Administradores</p>
-          <h3 className="text-5xl font-black text-[#00D1FF]">1</h3>
+          <h3 className="text-5xl font-black text-[#00D1FF]">{ADMIN_EMAILS.length}</h3>
         </div>
         <div className="bg-white/[0.03] border border-white/5 p-8 rounded-[2rem] flex flex-col justify-center">
           <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-2">Status da Rede</p>
@@ -95,6 +105,7 @@ const DatabaseView: React.FC<DatabaseViewProps> = ({ users, onExport, currentUse
                 <td className="px-8 py-6">
                   <span className="font-black text-sm">{u.name}</span>
                   {u.email === currentUserEmail && <span className="ml-3 text-[8px] font-black bg-[#00D1FF] text-black px-2 py-0.5 rounded uppercase">VOCÊ</span>}
+                  {u.email === MASTER_EMAIL && u.email !== currentUserEmail && <span className="ml-3 text-[8px] font-black bg-red-500 text-white px-2 py-0.5 rounded uppercase">PROPRIETÁRIO</span>}
                 </td>
                 <td className="px-8 py-6 text-sm text-gray-400 font-medium">{u.email}</td>
                 <td className="px-8 py-6 font-mono text-[9px] text-gray-600">{u.id}</td>
@@ -104,19 +115,6 @@ const DatabaseView: React.FC<DatabaseViewProps> = ({ users, onExport, currentUse
             ))}
           </tbody>
         </table>
-        {filteredUsers.length === 0 && (
-          <div className="py-20 text-center">
-            <p className="text-gray-600 font-black uppercase tracking-widest text-xs">Nenhum registro encontrado para "{filter}"</p>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-12 p-8 bg-zinc-900/30 rounded-3xl border border-white/5 flex items-center gap-6">
-        <div className="w-12 h-12 bg-[#00D1FF]/10 rounded-2xl flex items-center justify-center text-2xl">🛡️</div>
-        <div>
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#00D1FF]">Aviso de Segurança</h4>
-          <p className="text-xs text-gray-500 mt-1">Os dados exibidos são armazenados via Protocolo Local-Core. Recomenda-se realizar o backup semanal para evitar perda em caso de limpeza de cache do navegador.</p>
-        </div>
       </div>
     </div>
   );

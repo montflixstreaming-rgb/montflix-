@@ -7,7 +7,6 @@ import AuthScreen from './components/AuthScreen';
 import NotificationToast from './components/NotificationToast';
 import VideoPlayer from './components/VideoPlayer';
 import MovieCard from './components/MovieCard';
-import DatabaseView from './components/DatabaseView';
 import { Movie } from './services/types';
 import { Language } from './translations';
 import { MOCK_MOVIES } from './constants';
@@ -21,9 +20,11 @@ interface UserRecord {
   lastLogin: string;
 }
 
+const DATABASE_KEY = 'MONTFLIX_CORE_DATABASE';
+
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserRecord | null>(null);
-  const [dbUsers, setDbUsers] = useState<UserRecord[]>([]);
+  const [, setDbUsers] = useState<UserRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [language, setLanguage] = useState<Language>('pt');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -35,7 +36,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const savedSession = localStorage.getItem('montflix_current_session');
     const savedList = localStorage.getItem('montflix_mylist');
-    const savedDatabase = localStorage.getItem('MONTFLIX_CORE_DATABASE');
+    const savedDatabase = localStorage.getItem(DATABASE_KEY);
     
     if (savedSession) {
       try { setCurrentUser(JSON.parse(savedSession)); } catch (e) { localStorage.removeItem('montflix_current_session'); }
@@ -75,22 +76,11 @@ const App: React.FC = () => {
         localStorage.setItem('montflix_current_session', JSON.stringify(newUser));
       }
 
-      localStorage.setItem('MONTFLIX_CORE_DATABASE', JSON.stringify(updatedList));
+      localStorage.setItem(DATABASE_KEY, JSON.stringify(updatedList));
       return updatedList;
     });
 
     setToastMessage(`Sessão iniciada como ${name}`);
-  };
-
-  const exportUserData = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dbUsers, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", `montflix_users_backup_${new Date().getTime()}.json`);
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    setToastMessage("Backup do banco de dados concluído!");
   };
 
   const filteredMovies = useMemo(() => {
@@ -112,6 +102,7 @@ const App: React.FC = () => {
         currentLang={language}
         currentView={currentView} 
         onViewChange={setCurrentView}
+        currentUserEmail={currentUser.email}
       />
       
       <main className="pb-24">
@@ -124,8 +115,6 @@ const App: React.FC = () => {
               <MovieRow title="Exclusivos" movies={[...MOCK_MOVIES].reverse()} onSelect={setActiveMovie} favorites={myList} />
             </div>
           </div>
-        ) : currentView === 'database' ? (
-          <DatabaseView users={dbUsers} onExport={exportUserData} currentUserEmail={currentUser.email} />
         ) : (
           <div className="px-6 md:px-14 lg:px-24 pt-32 animate-in">
             <h2 className="text-4xl font-black uppercase tracking-tighter mb-12 border-l-4 border-[#00D1FF] pl-6">Resultados</h2>
@@ -142,8 +131,6 @@ const App: React.FC = () => {
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
         user={currentUser} 
-        allUsers={dbUsers}
-        onExportData={exportUserData}
         onLogout={() => { localStorage.removeItem('montflix_current_session'); setCurrentUser(null); }} 
         onUpdateAvatar={(img) => {
           const updated = {...currentUser, avatar: img};
@@ -153,7 +140,6 @@ const App: React.FC = () => {
         currentLang={language} 
         setLanguage={setLanguage} 
         onShowToast={setToastMessage}
-        devices={[]} onAddDevice={() => {}} onRemoveDevice={() => {}} activePairingCode={null} onGeneratePairingCode={() => ""}
       />
       
       {activeMovie && <VideoPlayer movie={activeMovie} onClose={() => setActiveMovie(null)} />}
